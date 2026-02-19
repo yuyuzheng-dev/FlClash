@@ -1,5 +1,7 @@
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/views/proxies/tab.dart';
 import 'package:fl_clash/widgets/widgets.dart';
@@ -9,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class NodeSelection extends ConsumerWidget {
   const NodeSelection({super.key});
 
-  Future<void> _showProxySheet(BuildContext context) async {
+  Future<void> _showProxySheet(BuildContext context, WidgetRef ref) async {
     final proxiesTabKey = GlobalKey<ProxiesTabViewState>();
     await showSheet(
       context: context,
@@ -19,6 +21,17 @@ class NodeSelection extends ConsumerWidget {
           type: type,
           title: '节点选择',
           actions: [
+            IconButton(
+              tooltip: appLocalizations.sync,
+              onPressed: () async {
+                final profile = ref.read(currentProfileProvider);
+                if (profile == null || profile.type == ProfileType.file) {
+                  return;
+                }
+                await appController.updateProfile(profile, showLoading: true);
+              },
+              icon: const Icon(Icons.sync),
+            ),
             IconButton(
               tooltip: appLocalizations.delayTest,
               onPressed: () async {
@@ -39,8 +52,13 @@ class NodeSelection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentGroupName =
+        ref.watch(currentProfileProvider.select((state) => state?.currentGroupName)) ??
+        GroupName.GLOBAL.name;
     final selectedProxyName =
-        ref.watch(getSelectedProxyNameProvider(GroupName.GLOBAL.name)) ?? '';
+        ref.watch(getSelectedProxyNameProvider(currentGroupName)) ??
+        ref.watch(getSelectedProxyNameProvider(GroupName.GLOBAL.name)) ??
+        '';
     final proxyName =
         selectedProxyName.isEmpty ? appLocalizations.noProxy : selectedProxyName;
     return SizedBox(
@@ -48,7 +66,7 @@ class NodeSelection extends ConsumerWidget {
       child: CommonCard(
         info: const Info(label: '节点选择', iconData: Icons.public),
         onPressed: () {
-          _showProxySheet(context);
+          _showProxySheet(context, ref);
         },
         child: Container(
           padding: baseInfoEdgeInsets.copyWith(top: 0),

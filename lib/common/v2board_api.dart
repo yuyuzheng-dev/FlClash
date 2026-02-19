@@ -638,6 +638,25 @@ class V2BoardApi {
     return asDataMap(resp.data);
   }
 
+  Future<V2BoardAllData> fetchAll(V2BoardSession session) async {
+    final user = await getUserInfo(session);
+    final subscribe = await getSubscribe(session);
+    final plans = await fetchPlans(session);
+    return V2BoardAllData(user: user, subscribe: subscribe, plans: plans);
+  }
+}
+
+class V2BoardAllData {
+  final Map<String, dynamic> user;
+  final Map<String, dynamic> subscribe;
+  final List<dynamic> plans;
+
+  const V2BoardAllData({
+    required this.user,
+    required this.subscribe,
+    required this.plans,
+  });
+}
   Future<({Map<String, dynamic> user, Map<String, dynamic> subscribe, List<dynamic> plans})>
   fetchAll(V2BoardSession session) async {
     final user = await getUserInfo(session);

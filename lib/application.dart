@@ -121,6 +121,9 @@ class ApplicationState extends ConsumerState<Application> {
         indicatorColor: colorScheme.primary.withOpacity(0.16),
         labelTextStyle: MaterialStateProperty.resolveWith((states) {
           final isSelected = states.contains(MaterialState.selected);
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.16),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final isSelected = states.contains(WidgetState.selected);
           return TextStyle(
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             color: isSelected

@@ -657,3 +657,11 @@ class V2BoardAllData {
     required this.plans,
   });
 }
+  Future<({Map<String, dynamic> user, Map<String, dynamic> subscribe, List<dynamic> plans})>
+  fetchAll(V2BoardSession session) async {
+    final user = await getUserInfo(session);
+    final subscribe = await getSubscribe(session);
+    final plans = await fetchPlans(session);
+    return (user: user, subscribe: subscribe, plans: plans);
+  }
+}

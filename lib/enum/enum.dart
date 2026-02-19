@@ -303,6 +303,7 @@ enum DashboardWidget {
     platforms: desktopPlatforms,
   ),
   intranetIp(GridItem(crossAxisCellCount: 4, child: IntranetIP())),
+  nodeSelection(GridItem(crossAxisCellCount: 4, child: NodeSelection())),
   memoryInfo(GridItem(crossAxisCellCount: 4, child: MemoryInfo()));
 
   final GridItem widget;

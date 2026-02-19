@@ -223,7 +223,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
+          - os: macos-latest
             arch: amd64
           - os: macos-latest
             arch: arm64
@@ -261,5 +261,4 @@ jobs:
           name: macos-${{ matrix.arch }}
           path: dist/**
           overwrite: true
-
 

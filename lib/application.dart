@@ -41,7 +41,99 @@ class ApplicationState extends ConsumerState<Application> {
     required Brightness brightness,
     int? primaryColor,
   }) {
-    return ref.read(genColorSchemeProvider(brightness));
+    final fallback = brightness == Brightness.dark
+        ? const Color(0xFF4A78FF)
+        : const Color(0xFF3C63F3);
+    return ref.read(
+      genColorSchemeProvider(
+        brightness,
+        color: primaryColor == null ? fallback : Color(primaryColor),
+      ),
+    );
+  }
+
+  ThemeData _buildV2BoardTheme({required Brightness brightness, int? primaryColor}) {
+    final colorScheme = _getAppColorScheme(
+      brightness: brightness,
+      primaryColor: primaryColor,
+    );
+    final isDark = brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF151B2C) : const Color(0xFFF8FAFF);
+    final scaffoldBackgroundColor = isDark
+        ? const Color(0xFF0B1020)
+        : const Color(0xFFF1F5FF);
+    final dividerColor = isDark
+        ? const Color(0x1FFFFFFF)
+        : const Color(0x140C1630);
+
+    return ThemeData(
+      useMaterial3: true,
+      pageTransitionsTheme: _pageTransitionsTheme,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: scaffoldBackgroundColor,
+      cardColor: cardColor,
+      dividerColor: dividerColor,
+      appBarTheme: AppBarTheme(
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: cardColor,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(0, 44),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(0, 44),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: BorderSide(color: dividerColor),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        isDense: true,
+        filled: true,
+        fillColor: isDark ? const Color(0xFF1A2135) : Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.2),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: cardColor,
+        indicatorColor: colorScheme.primary.withOpacity(0.16),
+        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+          final isSelected = states.contains(MaterialState.selected);
+          return TextStyle(
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected
+                ? colorScheme.onSurface
+                : colorScheme.onSurfaceVariant,
+          );
+        }),
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: colorScheme.onSurfaceVariant,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override
@@ -139,17 +231,14 @@ class ApplicationState extends ConsumerState<Application> {
           locale: utils.getLocaleForString(locale),
           supportedLocales: AppLocalizations.delegate.supportedLocales,
           themeMode: themeProps.themeMode,
-          theme: ThemeData(
-            useMaterial3: true,
-            pageTransitionsTheme: _pageTransitionsTheme,
-            colorScheme: _getAppColorScheme(
-              brightness: Brightness.light,
-              primaryColor: themeProps.primaryColor,
-            ),
+          theme: _buildV2BoardTheme(
+            brightness: Brightness.light,
+            primaryColor: themeProps.primaryColor,
           ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            pageTransitionsTheme: _pageTransitionsTheme,
+          darkTheme: _buildV2BoardTheme(
+            brightness: Brightness.dark,
+            primaryColor: themeProps.primaryColor,
+          ).copyWith(
             colorScheme: _getAppColorScheme(
               brightness: Brightness.dark,
               primaryColor: themeProps.primaryColor,

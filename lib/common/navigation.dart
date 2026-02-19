@@ -15,7 +15,7 @@ class Navigation {
         icon: Icon(Icons.space_dashboard),
         label: PageLabel.dashboard,
         builder: (_) =>
-            const DashboardView(key: GlobalObjectKey(PageLabel.dashboard)),
+            const V2BoardClientView(key: GlobalObjectKey(PageLabel.dashboard)),
       ),
       NavigationItem(
         icon: Icon(Icons.view_timeline),

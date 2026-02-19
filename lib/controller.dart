@@ -267,6 +267,50 @@ extension StateControllerExt on AppController {
 }
 
 extension ProfilesControllerExt on AppController {
+  static const _maxUrlProfilesCount = 2;
+
+  List<Profile> _getUrlProfiles() {
+    return _ref
+        .read(profilesProvider)
+        .where((profile) => profile.type == ProfileType.url)
+        .toList();
+  }
+
+  Future<void> _keepLatestUrlProfiles() async {
+    final urlProfiles = _getUrlProfiles();
+    if (urlProfiles.length <= _maxUrlProfilesCount) {
+      return;
+    }
+    final sortedProfiles = List<Profile>.from(urlProfiles)
+      ..sort((a, b) {
+        final aDate = a.lastUpdateDate;
+        final bDate = b.lastUpdateDate;
+        if (aDate == null && bDate == null) {
+          return b.id.compareTo(a.id);
+        }
+        if (aDate == null) {
+          return 1;
+        }
+        if (bDate == null) {
+          return -1;
+        }
+        return bDate.compareTo(aDate);
+      });
+    final removeProfiles = sortedProfiles.skip(_maxUrlProfilesCount);
+    for (final profile in removeProfiles) {
+      await deleteProfile(profile.id);
+    }
+  }
+
+  void _fallbackToFirstProfile() {
+    final fallbackProfile = _getUrlProfiles().firstOrNull;
+    if (fallbackProfile == null) {
+      return;
+    }
+    _ref.read(currentProfileIdProvider.notifier).value = fallbackProfile.id;
+    applyProfileDebounce(silence: true);
+  }
+
   Future<void> deleteProfile(int id) async {
     _ref.read(profilesProvider.notifier).del(id);
     clearEffect(id);
@@ -340,11 +384,16 @@ extension ProfilesControllerExt on AppController {
     }
     toProfiles();
     final profile = await loadingRun(tag: LoadingTag.profiles, () async {
-      return await Profile.normal(url: url).update();
+      return await Profile.normal(url: url).copyWith(autoUpdate: false).update();
     }, title: appLocalizations.addProfile);
     if (profile != null) {
       putProfile(profile);
+      _ref.read(currentProfileIdProvider.notifier).value = profile.id;
+      applyProfileDebounce(silence: true);
+      await _keepLatestUrlProfiles();
+      return;
     }
+    _fallbackToFirstProfile();
   }
 
   void setProfileAndAutoApply(Profile profile) {

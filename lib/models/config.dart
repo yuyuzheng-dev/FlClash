@@ -44,6 +44,7 @@ const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.networkDetection,
   DashboardWidget.trafficUsage,
   DashboardWidget.intranetIp,
+  DashboardWidget.nodeSelection,
 ];
 
 List<DashboardWidget> dashboardWidgetsSafeFormJson(

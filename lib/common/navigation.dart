@@ -8,7 +8,6 @@ class Navigation {
 
   List<NavigationItem> getItems({
     bool openLogs = false,
-    bool hasProxies = false,
   }) {
     return [
       NavigationItem(
@@ -17,21 +16,6 @@ class Navigation {
         label: PageLabel.dashboard,
         builder: (_) =>
             const DashboardView(key: GlobalObjectKey(PageLabel.dashboard)),
-      ),
-      NavigationItem(
-        icon: const Icon(Icons.article),
-        label: PageLabel.proxies,
-        builder: (_) =>
-            const ProxiesView(key: GlobalObjectKey(PageLabel.proxies)),
-        modes: hasProxies
-            ? [NavigationItemMode.mobile, NavigationItemMode.desktop]
-            : [],
-      ),
-      NavigationItem(
-        icon: Icon(Icons.folder),
-        label: PageLabel.profiles,
-        builder: (_) =>
-            const ProfilesView(key: GlobalObjectKey(PageLabel.profiles)),
       ),
       NavigationItem(
         icon: Icon(Icons.view_timeline),
